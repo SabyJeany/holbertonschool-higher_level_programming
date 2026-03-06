@@ -1,20 +1,22 @@
 #!/usr/bin/python3
-"""Deletes all State objects with a name containing the letter a"""
+"""Lists all states from the database hbtn_0e_0_usa"""
+import MySQLdb
 import sys
-from model_state import Base, State
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 if __name__ == "__main__":
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost/{}'.format(
-        sys.argv[1], sys.argv[2], sys.argv[3]), pool_pre_ping=True)
+    db = MySQLdb.connect(
+        host="localhost",
+        port=3306,
+        user=sys.argv[1],
+        passwd=sys.argv[2],
+        db=sys.argv[3]
+    )
     
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    cur = db.cursor()
+    cur.execute("SELECT * FROM states ORDER BY id ASC")
     
-    states = session.query(State).filter(State.name.like('%a%')).all()
-    for state in states:
-        session.delete(state)
-    session.commit()
+    for row in cur.fetchall():
+        print(row)
     
-    session.close()
+    cur.close()
+    db.close()
